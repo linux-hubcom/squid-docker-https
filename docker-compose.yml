@@ -1,0 +1,11 @@
+services:
+  squid:
+    container_name: squid-https
+    ports:
+      - "3128:3128"
+    image: piragenthdocker/squid-https:5.8
+#    command: 'sudo -u proxy -- /squid/sbin/squid -d 10 && sleep 5 && sudo -u proxy -- /squid/sbin/squid -d 10  && tail -f /dev/null &'
+    volumes:
+      - "/squid/var/cache/squid/:/squid/var/cache/squid/"
+      - "/squid/var/logs/:/squid/var/logs/"
+    privileged: true

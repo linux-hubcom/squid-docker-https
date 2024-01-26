@@ -1,0 +1,40 @@
+FROM ubuntu:latest
+
+RUN mkdir /squid
+
+COPY squid-5.8.tar.gz /squid/
+COPY OpenSSL_1_1_1j.zip /tmp/
+
+RUN apt update && echo 'Acquire::http::Proxy "http://192.168.2.1:3142";' > /etc/apt/apt.conf.d/00aptproxy 
+
+RUN apt update && apt install wget build-essential openssl libssl-dev pkg-config zip unzip sudo -y 
+
+RUN cd /tmp/ && unzip OpenSSL_1_1_1j.zip && cd ./openssl-OpenSSL_1_1_1j/ && \
+    ./config --prefix=/usr/local/openssl_1_1_1j --openssldir=/usr/local/openssl_1_1_1j/ssl && make && make install && \
+    sed -i '241i keyUsage = cRLSign, keyCertSign' /etc/ssl/openssl.cnf
+
+WORKDIR /squid/
+
+RUN tar -xvf squid-5.8.tar.gz && cd squid-5.8 && \
+    ./configure --with-default-user=proxy --with-openssl --enable-ssl-crtd --prefix=/squid/ --enable-icap-client --enable-ssl --with-openssl && \
+    make && make install 
+
+RUN mkdir /squid/ssl_cert && cd /squid/ssl_cert && openssl req -new -newkey rsa:2048 -days 365 -nodes -x509 -extensions v3_ca -keyout squid-self-signed.key -out squid-self-signed.crt \
+    -subj /C=CA/ST=Quebec/L=Montreal/O=linuxhub/OU=linuxhub/CN=linux-hub.com/emailAddress=email@gmail.com && \
+    openssl x509 -in squid-self-signed.crt -outform DER -out squid-self-signed.der && \
+    openssl x509 -in squid-self-signed.crt -outform PEM -out squid-self-signed.pem && \
+    openssl dhparam -outform PEM -out squid-self-signed_dhparam.pem 2048
+
+COPY ./squid.conf /squid/etc/squid.conf
+
+RUN mv /squid/ssl_cert /squid/etc/ssl_cert && \
+    cp /squid/etc/ssl_cert/squid-self-signed.pem /usr/local/share/ca-certificates/squid-self-signed.crt &&\
+    update-ca-certificates && chown -R proxy:proxy /squid && \
+    sudo -u proxy -- /squid/libexec/security_file_certgen -c -s /squid/var/logs/ssl_db -M 20MB && \
+    sudo -u proxy -- /squid/sbin/squid -z && chown -R proxy:proxy /squid
+
+RUN apt remove wget build-essential pkg-config zip unzip  -y && apt autoremove -y && rm -rf /squid/squid-5.8.tar.gz /squid/squid-5.8 /tmp && mkdir -p /tmp/mkstempc 
+
+COPY ./start.sh /squid
+
+ENTRYPOINT ["/squid/start.sh"]
