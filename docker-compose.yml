@@ -3,9 +3,10 @@ services:
     container_name: squid-https
     ports:
       - "3128:3128"
-    image: piragenthdocker/squid-https:5.8
+#    image: piragenthdocker/squid-https:5.8
+    image: dockerfilesizecheck:latest
 #    command: 'sudo -u proxy -- /squid/sbin/squid -d 10 && sleep 5 && sudo -u proxy -- /squid/sbin/squid -d 10  && tail -f /dev/null &'
     volumes:
-      - "/squid/var/cache/squid/:/squid/var/cache/squid/"
-      - "/squid/var/logs/:/squid/var/logs/"
+      - "/home/piragenth/Documents/squid-test-mount/squid/var/cache/squid/:/squid/var/cache/squid/"    
+#      - "/home/piragenth/Documents/squid-test-mount/squid/etc/ssl_cert/:/squid/etc/ssl_cert/"
     privileged: true
