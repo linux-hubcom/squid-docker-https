@@ -6,6 +6,6 @@ services:
       - "3128:3128"
     image: piragenthdocker/squid-https:5.8
     volumes:
-      - "/squid/var/cache/squid/:/squid/var/cache/squid/"    
-#      - "/home/piragenth/Documents/squid-test-mount/squid/etc/ssl_cert/:/squid/etc/ssl_cert/"
+      - "/squid/var/cache/squid/:/squid/var/cache/squid/"
+#      - "$HOME/Documents/squid-mount/squid/etc/ssl_cert/:/squid/etc/ssl_cert/"
     privileged: true

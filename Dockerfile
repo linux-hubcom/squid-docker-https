@@ -24,6 +24,7 @@ RUN apt update && echo 'Acquire::http::Proxy "http://192.168.2.1:3142";' > /etc/
     sudo -u proxy -- /squid/libexec/security_file_certgen -c -s /squid/var/logs/ssl_db -M 20MB && \
     sudo -u proxy -- /squid/sbin/squid -z && chown -R proxy:proxy /squid && \
     apt remove wget build-essential pkg-config zip unzip  -y && apt autoremove -y && rm -rf /squid/squid-5.8.tar.gz /squid/squid-5.8 /tmp && mkdir -p /tmp/mkstempc 
+
 COPY ./squid.conf /squid/etc/squid.conf
 
 COPY ./start.sh /squid
