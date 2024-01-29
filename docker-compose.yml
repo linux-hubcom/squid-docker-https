@@ -2,6 +2,7 @@ services:
   squid:
     build: .
     container_name: squid-https
+    restart: always
     ports:
       - "3128:3128"
     image: piragenthdocker/squid-https:5.8
