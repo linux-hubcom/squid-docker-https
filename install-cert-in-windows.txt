@@ -1,0 +1,2 @@
+certutil -user -addstore "Root" "certpath"
+certutil -addstore "Root" "certpath"
